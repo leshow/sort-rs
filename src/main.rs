@@ -96,14 +96,15 @@ fn bubble_sort_test() {
     assert_eq!(result, sorted);
 }
 
-fn merge_sort<T: PartialOrd + Copy + Clone>(list: &mut Vec<T>, start: usize, end: usize) -> Vec<T> {
-    if start <= end {
-        let mid = list.len() / 2;
-        merge_sort(list, start, mid);
-        merge_sort(list, mid + 1, end);
-
-        merge(list, start, mid, end);
+fn merge_sort<T: PartialOrd + Copy + Clone>(list: &mut Vec<T>) -> Vec<T> {
+    let len = list.len();
+    if len <= 1 {
+        return list.to_owned();
     }
+    let mid = list.len() / 2;
+    merge_sort(&mut list[0..mid]);
+    merge_sort(&mut list[mid + 1..len]);
+    // merge(list, start, mid, end);
     list.to_owned()
 }
 
