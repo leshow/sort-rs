@@ -3,19 +3,28 @@ fn main() {
     println!("Hello, world!");
 }
 
-fn selection_sort<T: PartialOrd>(list: &mut Vec<T>) {
+fn selection_sort<T: PartialOrd + Clone>(list: &mut Vec<T>) -> Vec<T>{
     for x in 0..list.len() {
         let mut min = x;
         for j in (x + 1)..list.len() {
-            if list[j] < list[x] {
+            if list[j] < list[min] {
                 min = j;
             }
         }
         list.swap(x, min);
     }
+    list.to_owned()
 }
 
-fn selection_sort_abstraction<T: PartialOrd + Ord>(list: &mut Vec<T>) {
+#[test]
+fn selecton_sort_test() {
+    let mut list = vec![8,6,4,9,3,4,5,10];
+    let sorted = vec![3,4,4,5,6,8,9,10];
+    let result = selection_sort(&mut list);
+    assert_eq!(result, sorted);
+}
+
+fn selection_sort_abstraction<T>(list: &mut Vec<T>) -> Vec<T> where T: PartialOrd + Ord + Clone {
     for i in 0..list.len() {
         let min = list[i..]
             .iter()
@@ -25,6 +34,15 @@ fn selection_sort_abstraction<T: PartialOrd + Ord>(list: &mut Vec<T>) {
             .unwrap_or(0);
         list.swap(i, min + i);
     }
+    list.to_owned()
+}
+
+#[test]
+fn selection_sort_abstraction_test() {
+    let mut list = vec![8,6,4,9,3,4,5,10];
+    let sorted = vec![3,4,4,5,6,8,9,10];
+    let result = selection_sort_abstraction(&mut list);
+    assert_eq!(result, sorted);
 }
 
 fn insertion_sort<T: PartialOrd + Copy>(list: &mut Vec<T>) {
