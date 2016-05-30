@@ -1,13 +1,13 @@
 #![allow(dead_code)]
 
-use std::fmt::Display;
+use std::fmt::{Display, Debug};
 
 fn main() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
-    insertion_sort(&mut list);
+    merge_sort(&mut list, 0, sorted.len());
     println!("{:?}", list);
-    assert_eq!(list, sorted);
+    // assert_eq!(list, sorted);
 }
 
 fn selection_sort<T: PartialOrd>(list: &mut Vec<T>) {
@@ -90,41 +90,42 @@ fn bubble_sort_test() {
     assert_eq!(list, sorted);
 }
 
-fn merge_sort<T: Ord>(list: &mut [T]) {
+fn merge_sort<T: Ord + Copy + Debug>(list: &mut Vec<T>, start: usize, end: usize) {
+    if start >= end {
+        return;
+    }
+    let mid = (start + end) / 2;
+    merge_sort(list, start, mid);
+    merge_sort(list, mid + 1, end);
+    println!("merge list {:?} {:?} {:?}", start, mid, end);
+    merge(list, start, mid, end);
+}
+
+fn merge<T: Ord + Copy + Debug>(list: &mut Vec<T>, start: usize, mid: usize, end: usize) {
     let len = list.len();
     if len <= 1 {
         return;
     }
-    let mid = list.len() / 2;
-    let (l1, l2) = list.split_at_mut(mid);
-    merge_sort(l1);
-    merge_sort(l2);
-    merge(list, start, mid, end);
-}
-
-fn merge<T: Ord + Copy>(list: &mut [T], start: usize, mid: usize, end: usize) {
     let mut temp = Vec::with_capacity(end - start + 1);
-    let (mut i, mut j, mut k) = (0, 0, 0);
+    let (mut i, mut j) = (0, mid + 1);
     while i <= mid && j <= end {
         if list[i] < list[j] {
-            temp[k] = list[i];
+            temp.push(list[i]);
             i += 1;
         } else {
-            temp[k] = list[j];
+            temp.push(list[j]);
             j += 1;
         }
-        k += 1;
     }
     while i <= mid {
-        temp[k] = list[i];
-        k += 1;
+        temp.push(list[i]);
         i += 1;
     }
     while j <= mid {
-        temp[k] = list[j];
-        k += 1;
+        temp.push(list[j]);
         j += 1;
     }
+    println!("{:?}", temp);
     i = start;
     for i in i..end {
         list[i] = temp[i - start];
