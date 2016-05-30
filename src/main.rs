@@ -10,7 +10,7 @@ fn main() {
     assert_eq!(list, sorted);
 }
 
-fn selection_sort<T: Ord>(list: &mut Vec<T>) {
+fn selection_sort<T: PartialOrd>(list: &mut Vec<T>) {
     for x in 0..list.len() {
         let mut min = x;
         for j in (x + 1)..list.len() {
@@ -50,7 +50,7 @@ fn selection_sort_abstraction_test() {
     assert_eq!(result, sorted);
 }
 
-fn insertion_sort<T: Ord + Display>(list: &mut Vec<T>) {
+fn insertion_sort<T: PartialOrd + Copy>(list: &mut Vec<T>) {
     for i in 0..list.len() {
         let tmp = list[i]; // save our item
         let mut pos = i; // and position
@@ -90,19 +90,19 @@ fn bubble_sort_test() {
     assert_eq!(list, sorted);
 }
 
-fn merge_sort<T: Ord + Copy + Clone>(list: &mut Vec<T>) -> Vec<T> {
+fn merge_sort<T: Ord>(list: &mut [T]) {
     let len = list.len();
     if len <= 1 {
-        return list.to_owned();
+        return;
     }
     let mid = list.len() / 2;
-    merge_sort(&mut list[0..mid]);
-    merge_sort(&mut list[mid + 1..len]);
-    // merge(list, start, mid, end);
-    list.to_owned()
+    let (l1, l2) = list.split_at_mut(mid);
+    merge_sort(l1);
+    merge_sort(l2);
+    merge(list, start, mid, end);
 }
 
-fn merge<T: Ord + Copy>(list: &mut Vec<T>, start: usize, mid: usize, end: usize) {
+fn merge<T: Ord + Copy>(list: &mut [T], start: usize, mid: usize, end: usize) {
     let mut temp = Vec::with_capacity(end - start + 1);
     let (mut i, mut j, mut k) = (0, 0, 0);
     while i <= mid && j <= end {
