@@ -11,7 +11,8 @@ fn main() {
 }
 
 fn binary_search<T: Ord>(list: &mut Vec<T>, target: T) -> bool {
-    let (mut min, max, mut guess) = (0, list.len() - 1, 0);
+    let (mut min, max) = (0, list.len() - 1);
+    let mut guess;
     while min <= max {
         guess = (min + max) / 2;
         if list[guess] == target {
@@ -24,6 +25,20 @@ fn binary_search<T: Ord>(list: &mut Vec<T>, target: T) -> bool {
     }
     return false;
 }
+
+// fn recursive_binary_search<T: Ord>(list: &mut [T], target: T) -> bool {
+//     if list.len() < 1 {
+//         return false;
+//     }
+//     let guess = list.len() / 2;
+//     if target == list[guess] {
+//         return true;
+//     } else if list[guess] > target {
+//         return recursive_binary_search(&mut list[0..guess], target);
+//     } else if list[guess] < target {
+//         return recursive_binary_search(&mut list[guess..list.len()], target);
+//     }
+// }
 
 fn selection_sort<T: PartialOrd>(list: &mut Vec<T>) {
     for x in 0..list.len() {
