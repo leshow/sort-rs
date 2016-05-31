@@ -5,8 +5,7 @@ use std::fmt::{Display, Debug};
 fn main() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
-    mergesort(&mut list);
-    println!("{:?}", list);
+    quicksort(&mut list);
     assert_eq!(list, sorted);
 }
 
@@ -132,38 +131,38 @@ fn bubble_sort_test() {
 // }
 
 
-fn mergesort<T: Clone + Ord>(a: &mut [T]) {
-    let (len, mid) = (a.len(), a.len() / 2);
+fn mergesort<T: Clone + Ord>(list: &mut [T]) {
+    let (len, mid) = (list.len(), list.len() / 2);
     if len <= 1 {
         return;
     }
-    mergesort(&mut a[0..mid]);
-    mergesort(&mut a[mid..len]);
-    merge_two(&mut a[0..len]);
+    mergesort(&mut list[0..mid]);
+    mergesort(&mut list[mid..len]);
+    merge_two(&mut list[0..len]);
 }
 
-fn merge_two<T: Clone + Ord>(a: &mut [T]) {
-    let (alen, mid) = (a.len(), a.len() / 2);
+fn merge_two<T: Clone + Ord>(list: &mut [T]) {
+    let (alen, mid) = (list.len(), list.len() / 2);
     if alen <= 1 {
         return;
     }
     let (mut i, mut j) = (0, mid);
     let mut b = Vec::with_capacity(alen);
     while i < mid && j < alen {
-        if a[i] < a[j] {
-            b.push(a[i].clone());
+        if list[i] < list[j] {
+            b.push(list[i].clone());
             i += 1;
         } else {
-            b.push(a[j].clone());
+            b.push(list[j].clone());
             j += 1;
         }
     }
-    b.extend_from_slice(&a[i..mid]);
-    b.extend_from_slice(&a[j..alen]);
+    b.extend_from_slice(&list[i..mid]);
+    b.extend_from_slice(&list[j..alen]);
 
     let (mut n, mut m, blen) = (0, 0, b.len());
     while n < alen && m < blen {
-        a[n] = b[m].clone();
+        list[n] = b[m].clone();
         n += 1;
         m += 1;
     }
@@ -174,5 +173,39 @@ fn mergesort_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
     mergesort(&mut list);
+    assert_eq!(list, sorted);
+}
+
+fn quicksort<T: Ord>(list: &mut [T]) {
+    let (start, end) = (0, list.len());
+    if end > start {
+        let pivot = partition(list);
+        quicksort(&mut list[start..(pivot - 1)]);
+        quicksort(&mut list[(pivot + 1)..end])
+    }
+}
+fn partition<T: Ord>(list: &mut [T]) -> usize {
+    let len = list.len();
+    let pivot = len / 2;
+
+    list.swap(pivot, len - 1);
+
+    let mut idx = 0;
+    for i in 0..len - 1 {
+        if &list[i] < &list[len - 1] {
+            list.swap(i, idx);
+            idx += 1;
+        }
+    }
+
+    list.swap(idx, len - 1);
+    idx
+}
+
+#[test]
+fn quicksort_test() {
+    let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
+    let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
+    quicksort(&mut list);
     assert_eq!(list, sorted);
 }
