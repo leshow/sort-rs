@@ -10,6 +10,21 @@ fn main() {
     println!("{:?}", sorted);
 }
 
+fn binary_search<T: Ord>(list: &mut Vec<T>, target: T) -> bool {
+    let (mut min, max, mut guess) = (0, list.len() - 1, 0);
+    while min <= max {
+        guess = (min + max) / 2;
+        if list[guess] == target {
+            return true;
+        } else if list[guess] < target {
+            min = guess + 1;
+        } else {
+            min = guess - 1;
+        }
+    }
+    return false;
+}
+
 fn selection_sort<T: PartialOrd>(list: &mut Vec<T>) {
     for x in 0..list.len() {
         let mut min = x;
@@ -18,7 +33,9 @@ fn selection_sort<T: PartialOrd>(list: &mut Vec<T>) {
                 min = j;
             }
         }
-        list.swap(x, min);
+        if x != min {
+            list.swap(x, min);
+        }
     }
 }
 
@@ -36,9 +53,11 @@ fn selection_sort_abstraction<T: Ord>(list: &mut Vec<T>) {
             .iter()
             .enumerate()
             .min_by_key(|&(_, v)| v)
-            .map(|(i, _)| i)
+            .map(|(idx, _)| idx)
             .unwrap_or(0);
-        list.swap(i, min + i);
+        if min != 0 {
+            list.swap(i, min + i);
+        }
     }
 }
 
