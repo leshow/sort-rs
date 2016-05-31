@@ -5,8 +5,9 @@ use std::fmt::{Display, Debug};
 fn main() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
-    quicksort(&mut list);
-    assert_eq!(list, sorted);
+    mergesort(&mut list);
+    println!("{:?}", list);
+    println!("{:?}", sorted);
 }
 
 fn selection_sort<T: PartialOrd>(list: &mut Vec<T>) {
@@ -26,7 +27,7 @@ fn selecton_sort_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
     selection_sort(&mut list);
-    assert_eq!(list, sorted);
+    assert_eq!(*list, *sorted);
 }
 
 fn selection_sort_abstraction<T: Ord>(list: &mut Vec<T>) {
@@ -45,8 +46,8 @@ fn selection_sort_abstraction<T: Ord>(list: &mut Vec<T>) {
 fn selection_sort_abstraction_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
-    let result = selection_sort_abstraction(&mut list);
-    assert_eq!(result, sorted);
+    selection_sort_abstraction(&mut list);
+    assert_eq!(*list, *sorted);
 }
 
 fn insertion_sort<T: PartialOrd + Copy>(list: &mut Vec<T>) {
@@ -68,7 +69,7 @@ fn insertion_sort_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
     insertion_sort(&mut list);
-    assert_eq!(list, sorted);
+    assert_eq!(*list, *sorted);
 }
 
 fn bubble_sort<T: Ord>(list: &mut Vec<T>) {
@@ -86,7 +87,7 @@ fn bubble_sort_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
     bubble_sort(&mut list);
-    assert_eq!(list, sorted);
+    assert_eq!(*list, *sorted);
 }
 
 // original implementation
@@ -173,7 +174,7 @@ fn mergesort_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
     mergesort(&mut list);
-    assert_eq!(list, sorted);
+    assert_eq!(*list, *sorted);
 }
 
 fn quicksort<T: Ord>(list: &mut [T]) {
@@ -207,5 +208,5 @@ fn quicksort_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
     quicksort(&mut list);
-    assert_eq!(list, sorted);
+    assert_eq!(*list, *sorted);
 }
