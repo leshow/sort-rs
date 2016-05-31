@@ -90,7 +90,8 @@ fn insertion_sort<T: PartialOrd + Copy>(list: &mut Vec<T>) {
         let mut pos = i; // and position
         // look back in array, swap each position that's bigger than us
         while pos > 0 && list[pos - 1] > tmp {
-            list.swap(pos, pos - 1);
+            // list.swap(pos, pos - 1);
+            list[pos] = list[pos - 1];
             pos -= 1;
         }
         // found the spot to insert
