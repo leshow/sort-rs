@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use std::fmt::{Display, Debug};
+use std::cmp::Ordering;
 
 fn main() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
@@ -26,18 +27,44 @@ fn binary_search<T: Ord>(list: &Vec<T>, target: T) -> bool {
     return false;
 }
 
-fn recursive_binary_search<T: Ord>(list: &[T], target: T) -> bool {
-    if list.len() < 1 {
+#[test]
+fn binary_search_test() {
+    let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
+    assert!(recursive_binsearch(&sorted, 5));
+}
+
+// fn recursive_binsearch<T: Ord>(list: &[T], target: T) -> bool {
+//     if list.is_empty() {
+//         return false;
+//     }
+//     let guess = list.len() / 2;
+//     if target == list[guess] {
+//         true
+//     } else if list[guess] > target {
+//         recursive_binsearch(&list[..guess], target)
+//     } else {
+//         recursive_binsearch(&list[guess+1..], target)
+//     }
+// }
+
+fn recursive_binsearch<T: Ord>(list: &[T], target: T) -> bool {
+    if list.is_empty() {
         return false;
     }
     let guess = list.len() / 2;
-    if target == list[guess] {
-        return true;
-    } else if list[guess] > target {
-        return recursive_binary_search(&list[0..guess], target);
-    } else {
-        return recursive_binary_search(&list[guess..list.len()], target);
+    match target.cmp(&list[guess]) {
+        Ordering::Less => recursive_binsearch(&list[..guess], target),
+        Ordering::Greater => recursive_binsearch(&list[guess + 1..], target),
+        Ordering::Equal => true,
     }
+}
+
+#[test]
+fn recursive_binsearch_test() {
+    let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
+    assert!(recursive_binsearch(&sorted, 4));
+    assert!(!recursive_binsearch(&sorted, -3));
+    assert!(!recursive_binsearch(&sorted, 14));
 }
 
 fn selection_sort<T: PartialOrd>(list: &mut Vec<T>) {
