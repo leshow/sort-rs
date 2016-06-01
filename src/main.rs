@@ -242,27 +242,22 @@ fn mergesort_test() {
 fn quicksort<T: Ord>(list: &mut [T]) {
     let (start, end) = (0, list.len());
     if end > start {
-        let pivot = partition(list);
+        let pivot = partition(list, start, end);
         quicksort(&mut list[start..(pivot - 1)]);
         quicksort(&mut list[(pivot + 1)..end])
     }
 }
-fn partition<T: Ord>(list: &mut [T]) -> usize {
-    let len = list.len();
-    let pivot = len / 2;
 
-    list.swap(pivot, len - 1);
-
-    let mut idx = 0;
-    for i in 0..len - 1 {
-        if &list[i] < &list[len - 1] {
-            list.swap(i, idx);
-            idx += 1;
+fn partition<T: Ord>(list: &mut [T], p: usize, r: usize) -> usize {
+    let mut q = p;
+    for j in p..r {
+        if list[j] <= list[r] {
+            list.swap(j, q);
+            q += 1;
         }
     }
-
-    list.swap(idx, len - 1);
-    idx
+    list.swap(r, q);
+    return q;
 }
 
 #[test]
