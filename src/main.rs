@@ -250,11 +250,13 @@ fn quicksort<T: Ord>(list: &mut [T]) {
 
 fn partition<T: Ord>(list: &mut [T], p: usize, r: usize) -> usize {
     let mut q = p;
-    for j in p..r {
+    let mut j = p;
+    while j < r {
         if list[j] <= list[r] {
             list.swap(j, q);
             q += 1;
         }
+        j += 1;
     }
     list.swap(r, q);
     return q;
