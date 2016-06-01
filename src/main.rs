@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+extern crate rayon;
 
 use std::fmt::{Display, Debug};
 use std::cmp::Ordering;
@@ -240,26 +241,35 @@ fn mergesort_test() {
 }
 
 fn quicksort<T: Ord>(list: &mut [T]) {
-    let (start, end) = (0, list.len());
-    if end > start {
-        let pivot = partition(list, start, end);
-        quicksort(&mut list[start..(pivot - 1)]);
-        quicksort(&mut list[(pivot + 1)..end])
+    if list.len() <= 1 {
+        return;
     }
+    let pivot = partition(list);
+    let (lo, hi) = list.split_at_mut(pivot);
+    quicksort(lo);
+    quicksort(hi);
 }
 
-fn partition<T: Ord>(list: &mut [T], p: usize, r: usize) -> usize {
-    let mut q = p;
-    let mut j = p;
-    while j < r {
-        if list[j] <= list[r] {
-            list.swap(j, q);
-            q += 1;
-        }
-        j += 1;
+fn par_quicksort<T: Ord + Send>(list: &mut [T]) {
+    if list.len() <= 1 {
+        return;
     }
-    list.swap(r, q);
-    return q;
+    let pivot = partition(list);
+    let (lo, hi) = list.split_at_mut(pivot);
+    rayon::join(|| par_quicksort(lo), || par_quicksort(hi));
+}
+
+fn partition<T: Ord>(v: &mut [T]) -> usize {
+    let pivot = v.len() - 1;
+    let mut i = 0;
+    for j in 0..pivot {
+        if v[j] <= v[pivot] {
+            v.swap(i, j);
+            i += 1;
+        }
+    }
+    v.swap(i, pivot);
+    i
 }
 
 #[test]
@@ -267,5 +277,13 @@ fn quicksort_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
     quicksort(&mut list);
+    assert_eq!(*list, *sorted);
+}
+
+#[test]
+fn par_quicksort_test() {
+    let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
+    let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
+    par_quicksort(&mut list);
     assert_eq!(*list, *sorted);
 }
