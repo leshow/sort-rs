@@ -202,10 +202,10 @@ fn mergesort<T: Clone + Ord>(list: &mut [T]) {
     }
     mergesort(&mut list[0..mid]);
     mergesort(&mut list[mid..len]);
-    merge_two(&mut list[0..len]);
+    merge(&mut list[0..len]);
 }
 
-fn merge_two<T: Clone + Ord>(list: &mut [T]) {
+fn merge<T: Clone + Ord>(list: &mut [T]) {
     let (alen, mid) = (list.len(), list.len() / 2);
     if alen <= 1 {
         return;
@@ -232,12 +232,46 @@ fn merge_two<T: Clone + Ord>(list: &mut [T]) {
     }
 }
 
+fn par_mergesort<T: Clone + Ord>(list: &mut [T]) -> Vec<T> {
+    let (len, mid) = (list.len(), list.len() / 2);
+    if len <= 1 {
+        return Vec::new();
+    }
+    let (left, right) = list.split_at_mut(mid);
+    par_mergesort(left);
+    par_mergesort(right);
+
+    merge_two(left, right)
+}
+
+fn merge_two<T: Clone + Ord>(left: &mut [T], right: &mut [T]) -> Vec<T> {
+    let (alen, rlen) = (right.len(), left.len());
+    if alen <= 1 {
+        return Vec::new();
+    }
+    let (mut i, mut j) = (0, 0);
+    let mut b = Vec::with_capacity(alen + rlen);
+    while i < alen && j < rlen {
+        if left[i] < right[j] {
+            b.push(left[i].clone());
+            i += 1;
+        } else {
+            b.push(right[j].clone());
+            j += 1;
+        }
+    }
+    b.extend_from_slice(&left[i..alen]);
+    b.extend_from_slice(&right[j..rlen]);
+
+    b
+}
+
 #[test]
-fn mergesort_test() {
+fn par_mergesort_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
-    mergesort(&mut list);
-    assert_eq!(*list, *sorted);
+    let result = par_mergesort(&mut list);
+    assert_eq!(*result, *sorted);
 }
 
 fn quicksort<T: Ord>(list: &mut [T]) {
