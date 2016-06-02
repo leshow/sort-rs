@@ -232,36 +232,43 @@ fn merge<T: Clone + Ord>(list: &mut [T]) {
     }
 }
 
-fn par_mergesort<T: Clone + Ord>(list: &mut [T]) -> Vec<T> {
+fn par_mergesort<T: Clone + Ord + Debug>(list: &mut [T]) -> Vec<T> {
     let (len, mid) = (list.len(), list.len() / 2);
     if len <= 1 {
-        return Vec::new();
+        return list.to_owned();
     }
+
     let (left, right) = list.split_at_mut(mid);
+    println!("splitting {:?} -- {:?}", left, right);
     par_mergesort(left);
     par_mergesort(right);
 
     merge_two(left, right)
 }
 
-fn merge_two<T: Clone + Ord>(left: &mut [T], right: &mut [T]) -> Vec<T> {
-    let (alen, rlen) = (right.len(), left.len());
-    if alen <= 1 {
-        return Vec::new();
-    }
+fn merge_two<T: Clone + Ord + Debug>(left: &mut [T], right: &mut [T]) -> Vec<T> {
+    println!("merging {:?} -- {:?}", left, right);
     let (mut i, mut j) = (0, 0);
-    let mut b = Vec::with_capacity(alen + rlen);
-    while i < alen && j < rlen {
+    let mut b = Vec::with_capacity(left.len() + right.len());
+    while i < left.len() && j < right.len() {
+        println!("{:?} - {:?}", left[i], right[j]);
         if left[i] < right[j] {
+            println!("less {:?} {:?}", left[i], right[j]);
             b.push(left[i].clone());
             i += 1;
         } else {
+            println!("greater {:?} {:?}", left[i], right[j]);
             b.push(right[j].clone());
             j += 1;
         }
     }
-    b.extend_from_slice(&left[i..alen]);
-    b.extend_from_slice(&right[j..rlen]);
+    println!("cmp {:?}", b);
+    if left.len() > 0 {
+        b.extend_from_slice(&left[i..left.len()]);
+    }
+    if right.len() > 0 {
+        b.extend_from_slice(&right[j..right.len()]);
+    }
 
     b
 }
