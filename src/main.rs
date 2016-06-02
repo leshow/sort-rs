@@ -232,7 +232,7 @@ fn merge<T: Clone + Ord>(list: &mut [T]) {
     }
 }
 
-fn par_mergesort<T: Clone + Ord + Debug>(list: &mut [T]) -> Vec<T> {
+fn par_mergesort<T: Clone + Ord + Send + Debug>(list: &mut [T]) -> Vec<T> {
     let (len, mid) = (list.len(), list.len() / 2);
     if len <= 1 {
         return list.to_owned();
@@ -240,6 +240,7 @@ fn par_mergesort<T: Clone + Ord + Debug>(list: &mut [T]) -> Vec<T> {
 
     let (left, right) = list.split_at_mut(mid);
     println!("splitting {:?} -- {:?}", left, right);
+    // rayon::join(|| par_mergesort(left), || par_mergesort(right));
     par_mergesort(left);
     par_mergesort(right);
 
