@@ -240,9 +240,9 @@ fn par_mergesort<T: Clone + Ord + Send + Debug>(list: &mut [T]) -> Vec<T> {
 
     let (left, right) = list.split_at_mut(mid);
     println!("splitting {:?} -- {:?}", left, right);
-    // rayon::join(|| par_mergesort(left), || par_mergesort(right));
-    par_mergesort(left);
-    par_mergesort(right);
+    rayon::join(|| par_mergesort(left), || par_mergesort(right));
+    // par_mergesort(left);
+    // par_mergesort(right);
 
     merge_two(left, right)
 }
