@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 extern crate rayon;
 
-use std::fmt::{Display, Debug};
+use std::fmt::{Debug, Display};
 use std::cmp::Ordering;
 
 fn main() {
@@ -12,7 +12,7 @@ fn main() {
     println!("{:?}", sorted);
 }
 
-fn binary_search<T: Ord>(list: &Vec<T>, target: T) -> bool {
+fn binary_search<T: Ord>(list: &[T], target: T) -> bool {
     let (mut min, max) = (0, list.len() - 1);
     let mut guess;
     while min <= max {
@@ -34,20 +34,6 @@ fn binary_search_test() {
     assert!(recursive_binsearch(&sorted, 5));
 }
 
-// fn recursive_binsearch<T: Ord>(list: &[T], target: T) -> bool {
-//     if list.is_empty() {
-//         return false;
-//     }
-//     let guess = list.len() / 2;
-//     if target == list[guess] {
-//         true
-//     } else if list[guess] > target {
-//         recursive_binsearch(&list[..guess], target)
-//     } else {
-//         recursive_binsearch(&list[guess+1..], target)
-//     }
-// }
-
 fn recursive_binsearch<T: Ord>(list: &[T], target: T) -> bool {
     if list.is_empty() {
         return false;
@@ -68,7 +54,7 @@ fn recursive_binsearch_test() {
     assert!(!recursive_binsearch(&sorted, 14));
 }
 
-fn selection_sort<T: PartialOrd>(list: &mut Vec<T>) {
+fn selection_sort<T: PartialOrd>(list: &mut [T]) {
     for x in 0..list.len() {
         let mut min = x;
         for j in (x + 1)..list.len() {
@@ -90,7 +76,7 @@ fn selecton_sort_test() {
     assert_eq!(*list, *sorted);
 }
 
-fn selection_sort_abstraction<T: Ord>(list: &mut Vec<T>) {
+fn sel_sort_iterators<T: Ord>(list: &mut [T]) {
     for i in 0..list.len() {
         let min = list[i..]
             .iter()
@@ -108,17 +94,16 @@ fn selection_sort_abstraction<T: Ord>(list: &mut Vec<T>) {
 fn selection_sort_abstraction_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
-    selection_sort_abstraction(&mut list);
+    sel_sort_iterators(&mut list);
     assert_eq!(*list, *sorted);
 }
 
-fn insertion_sort<T: PartialOrd + Copy>(list: &mut Vec<T>) {
-    for i in 0..list.len() {
+fn ins_sort_copy<T: PartialOrd + Copy>(list: &mut [T]) {
+    for i in 1..list.len() {
         let tmp = list[i]; // save our item
         let mut pos = i; // and position
         // look back in array, swap each position that's bigger than us
         while pos > 0 && list[pos - 1] > tmp {
-            // list.swap(pos, pos - 1);
             list[pos] = list[pos - 1];
             pos -= 1;
         }
@@ -127,15 +112,34 @@ fn insertion_sort<T: PartialOrd + Copy>(list: &mut Vec<T>) {
     }
 }
 
+fn ins_sort<T: PartialOrd>(list: &mut [T]) {
+    for i in 1..list.len() {
+        let mut j = i;
+        while j > 0 && list[j - 1] > list[j] {
+            list.swap(j - 1, j);
+            j -= 1;
+        }
+    }
+}
+
+#[test]
+fn test_ins_sort() {
+    let mut list = vec![9, 8, 3, 4, 5, 7, 1, 2];
+    let sorted = vec![1, 2, 3, 4, 5, 7, 8, 9];
+    ins_sort(&mut list);
+    assert_eq!(*list, *sorted);
+}
+
+
 #[test]
 fn insertion_sort_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
-    insertion_sort(&mut list);
+    ins_sort_copy(&mut list);
     assert_eq!(*list, *sorted);
 }
 
-fn bubble_sort<T: Ord>(list: &mut Vec<T>) {
+fn bubble_sort<T: Ord>(list: &mut [T]) {
     for i in 0..list.len() {
         for j in (i + 1)..list.len() {
             if list[i] > list[j] {
@@ -232,55 +236,57 @@ fn merge<T: Clone + Ord>(list: &mut [T]) {
     }
 }
 
-fn par_mergesort<T: Clone + Ord + Send + Debug>(list: &mut [T]) -> Vec<T> {
-    let (len, mid) = (list.len(), list.len() / 2);
-    if len <= 1 {
-        return list.to_owned();
-    }
-
-    let (left, right) = list.split_at_mut(mid);
-    println!("splitting {:?} -- {:?}", left, right);
-    rayon::join(|| par_mergesort(left), || par_mergesort(right));
-    // par_mergesort(left);
-    // par_mergesort(right);
-
-    merge_two(left, right)
-}
-
-fn merge_two<T: Clone + Ord + Debug>(left: &mut [T], right: &mut [T]) -> Vec<T> {
-    println!("merging {:?} -- {:?}", left, right);
-    let (mut i, mut j) = (0, 0);
-    let mut b = Vec::with_capacity(left.len() + right.len());
-    while i < left.len() && j < right.len() {
-        println!("{:?} - {:?}", left[i], right[j]);
-        if left[i] < right[j] {
-            println!("less {:?} {:?}", left[i], right[j]);
-            b.push(left[i].clone());
-            i += 1;
-        } else {
-            println!("greater {:?} {:?}", left[i], right[j]);
-            b.push(right[j].clone());
-            j += 1;
-        }
-    }
-    println!("cmp {:?}", b);
-    if left.len() > 0 {
-        b.extend_from_slice(&left[i..left.len()]);
-    }
-    if right.len() > 0 {
-        b.extend_from_slice(&right[j..right.len()]);
-    }
-
-    b
-}
-
 #[test]
-fn par_mergesort_test() {
+fn mergesort_test() {
     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
-    let result = par_mergesort(&mut list);
-    assert_eq!(*result, *sorted);
+    mergesort(&mut list);
+    assert_eq!(*list, *sorted);
 }
+
+// fn par_mergesort<T: Clone + Ord + Send + Debug>(list: &mut [T]) -> Vec<T> {
+//     let (len, mid) = (list.len(), list.len() / 2);
+//     if len <= 1 {
+//         return list.to_owned();
+//     }
+
+//     let (left, right) = list.split_at_mut(mid);
+//     rayon::join(|| par_mergesort(left), || par_mergesort(right));
+//     // par_mergesort(left);
+//     // par_mergesort(right);
+
+//     merge_two(left, right)
+// }
+
+// fn merge_two<T: Clone + Ord + Debug>(left: &mut [T], right: &mut [T]) -> Vec<T> {
+//     let (mut i, mut j) = (0, 0);
+//     let mut b = Vec::with_capacity(left.len() + right.len());
+//     while i < left.len() && j < right.len() {
+//         if left[i] < right[j] {
+//             b.push(left[i].clone());
+//             i += 1;
+//         } else {
+//             b.push(right[j].clone());
+//             j += 1;
+//         }
+//     }
+//     if left.len() > 0 {
+//         b.extend_from_slice(&left[i..left.len()]);
+//     }
+//     if right.len() > 0 {
+//         b.extend_from_slice(&right[j..right.len()]);
+//     }
+
+//     b
+// }
+
+// #[test]
+// fn par_mergesort_test() {
+//     let mut list = vec![8, 6, 4, 9, 3, 4, 5, 10];
+//     let sorted = vec![3, 4, 4, 5, 6, 8, 9, 10];
+//     let result = par_mergesort(&mut list);
+//     assert_eq!(*result, *sorted);
+// }
 
 fn quicksort<T: Ord>(list: &mut [T]) {
     if list.len() <= 1 {
