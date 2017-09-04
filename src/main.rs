@@ -244,6 +244,39 @@ fn mergesort_test() {
     assert_eq!(*list, *sorted);
 }
 
+pub fn heapsort<T: PartialOrd>(arr: &mut [T]) {
+    let n = arr.len();
+    for i in (0..(n / 2) + 1).rev() {
+        max_heapify(arr, i, n);
+    }
+    for i in (0..n).rev() {
+        arr.swap(0, i);
+        max_heapify(arr, 0, i);
+    }
+}
+
+fn max_heapify<T: PartialOrd>(arr: &mut [T], i: usize, n: usize) {
+    let mut largest = i; // root
+    let l = 2 * i + 1; // left
+    let r = 2 * i + 2; // right
+    if l < n && arr[l] > arr[largest] {
+        largest = l;
+    }
+    if r < n && arr[r] > arr[largest] {
+        largest = r;
+    }
+    if largest != i {
+        arr.swap(i, largest);
+        max_heapify(arr, largest, n);
+    }
+}
+#[test]
+fn heapsort_test() {
+    let mut list = vec![8, 6, 4, 9, 3, 4, 5, 1, 10, 11, 10, 1];
+    let sorted = vec![1, 1, 3, 4, 4, 5, 6, 8, 9, 10, 10, 11];
+    heapsort(&mut list);
+    assert_eq!(*list, *sorted);
+}
 // fn par_mergesort<T: Clone + Ord + Send + Debug>(list: &mut [T]) -> Vec<T> {
 //     let (len, mid) = (list.len(), list.len() / 2);
 //     if len <= 1 {
